@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "change_discovery_parser"
+version = "0.1.0"
+description = "A application to step through and investigate the contents of a change discovery endpoint"
+authors = ["Mark Baggett <mbagget1@utk.edu>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+requests = "^2.26.0"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
