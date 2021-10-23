@@ -51,8 +51,19 @@ class ActivitiesPage(ChangeDiscoveryRequest):
     def __validate(self):
         self.validate_id()
         self.validate_type()
+        self.__validate_ordered_items()
         return
+
+    def __validate_ordered_items(self):
+        if "orderedItems" in self.details:
+            if type(self.details['orderedItems']) == list:
+                if len(self.details['orderedItems']) < 1:
+                    raise ValueError("ActivitiesPage must include at least 1 item.")
+            else:
+                raise ValueError("orderedItems property on ActivitiesPage must be an array.")
+        else:
+            raise KeyError("ActivitiesPage missing orderedItems list.")
 
 
 if __name__ == "__main__":
-    OrderedCollection("https://iiif.bodleian.ox.ac.uk/iiif/activity/page-171")
+    ActivitiesPage("https://iiif.bodleian.ox.ac.uk/iiif/activity/page-171")
