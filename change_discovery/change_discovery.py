@@ -2,6 +2,7 @@ import requests
 
 
 class ChangeDiscoveryRequest:
+    """A base class for doing various change discovery requests."""
     def __init__(self, url, type_value):
         self.endpoint = url
         self.type = type_value
@@ -17,9 +18,13 @@ class ChangeDiscoveryRequest:
 
 
 class OrderedCollection(ChangeDiscoveryRequest):
-    def __init__(self, url):
+    """A class to represent an ActivityStreams Collection."""
+    def __init__(self, url, last_crawl=""):
         super().__init__(url, "OrderedCollection")
         self.__validate()
+        self.process_items = []
+        self.last_crawl = last_crawl
+        self.only_delete = False
 
     def __validate(self):
         self.__validate_id()
