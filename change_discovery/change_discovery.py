@@ -47,6 +47,7 @@ class ActivitiesPage(ChangeDiscoveryRequest):
     def __init__(self, url, last_crawl=""):
         super().__init__(url, "OrderedCollectionPage")
         self.__validate()
+        self.is_last_page = self.__test_if_last_page()
 
     def __validate(self):
         self.validate_id()
@@ -63,6 +64,12 @@ class ActivitiesPage(ChangeDiscoveryRequest):
                 raise ValueError("orderedItems property on ActivitiesPage must be an array.")
         else:
             raise KeyError("ActivitiesPage missing orderedItems list.")
+
+    def __test_if_last_page(self):
+        if 'prev' not in self.details:
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":
