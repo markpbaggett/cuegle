@@ -72,5 +72,25 @@ class ActivitiesPage(ChangeDiscoveryRequest):
             return False
 
 
+class Activity:
+    def __init__(self, activity_object):
+        self.activity = activity_object
+
+    def __validate(self):
+        valid_types = ('Create', 'Update', 'Delete', 'Move', 'Add', 'Remove', 'Refresh')
+        if self.activity['type'] not in valid_types:
+            raise ValueError(f"Activity type is not valid. Got {self.activity['type']}.")
+
+    def parse_activity(self):
+        """Looks at the object of an activity and returns appropriate data if a manifest is the subject."""
+        if self.activity['object']['type'] == 'Manifest':
+            return {
+                'type': self.activity['type'],
+                'manifest_url': self.activity['object']['id'],
+            }
+        else:
+            return {'type': 'Ignore'}
+
+
 if __name__ == "__main__":
     ActivitiesPage("https://iiif.bodleian.ox.ac.uk/iiif/activity/page-171")
