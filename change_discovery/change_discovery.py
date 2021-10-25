@@ -45,7 +45,8 @@ class OrderedCollection(ChangeDiscoveryRequest):
         """This gets everything regardless of type or timestamp"""
         x = self.__crawl(self.details['last']['id'])
         while x is not False:
-            self.__crawl(x)
+            x = self.__crawl(x)
+            print(x)
         return
 
     def __crawl(self, page):
@@ -123,7 +124,8 @@ class Activity:
 
 
 if __name__ == "__main__":
-    x = OrderedCollection('https://iiif.bodleian.ox.ac.uk/iiif/activity/all-changes')
-    x.get_all_pages_ever()
-    print(x.processed_items)
+    x = OrderedCollection('https://researchworks.oclc.org/digital/activity-stream/site/16877')
+    activities = x.get_all_pages_ever()
+    with open("utc_activities.py", 'w') as sample:
+        sample.write(activities)
 
