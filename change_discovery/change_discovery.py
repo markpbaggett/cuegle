@@ -30,7 +30,7 @@ class OrderedCollection(ChangeDiscoveryRequest):
     def __init__(self, url, last_crawl=""):
         super().__init__(url, "OrderedCollection")
         self.__validate()
-        self.process_items = []
+        self.processed_items = []
         self.last_crawl = last_crawl
         self.only_delete = False
 
@@ -40,6 +40,22 @@ class OrderedCollection(ChangeDiscoveryRequest):
         if "last" not in self.details:
             raise KeyError("OrderedCollection missing required last property.")
         return
+
+    def get_all_pages_ever(self):
+        """This gets everything regardless of type or timestamp"""
+        x = self.__crawl(self.details['last']['id'])
+        while x is not False:
+            self.__crawl(x)
+        return
+
+    def __crawl(self, page):
+        current = ActivitiesPage(page)
+        for activity in current.parsed_activities:
+            self.processed_items.append(activity)
+        if current.is_last_page == False:
+            return current.details['prev']['id']
+        else:
+            return False
 
 
 class ActivitiesPage(ChangeDiscoveryRequest):
@@ -74,6 +90,7 @@ class ActivitiesPage(ChangeDiscoveryRequest):
             return False
 
     def __parse_activities(self):
+        """This is a work in progress.  Currently, timestamp and activity type not being actioned upon."""
         return [Activity(activity).parsed_activity for activity in self.activities]
 
 
@@ -106,5 +123,7 @@ class Activity:
 
 
 if __name__ == "__main__":
-    x = ActivitiesPage("https://iiif.bodleian.ox.ac.uk/iiif/activity/page-171")
-    print(x.parsed_activities)
+    x = OrderedCollection('https://iiif.bodleian.ox.ac.uk/iiif/activity/all-changes')
+    x.get_all_pages_ever()
+    print(x.processed_items)
+
