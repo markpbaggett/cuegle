@@ -48,6 +48,8 @@ class ActivitiesPage(ChangeDiscoveryRequest):
         super().__init__(url, "OrderedCollectionPage")
         self.__validate()
         self.is_last_page = self.__test_if_last_page()
+        self.activities = [activity for activity in reversed(self.details['orderedItems'])]
+        self.parsed_activities = self.__parse_activities()
 
     def __validate(self):
         self.validate_id()
@@ -71,26 +73,38 @@ class ActivitiesPage(ChangeDiscoveryRequest):
         else:
             return False
 
+    def __parse_activities(self):
+        return [Activity(activity).parsed_activity for activity in self.activities]
+
 
 class Activity:
     def __init__(self, activity_object):
         self.activity = activity_object
+        self.parsed_activity = self.__parse_activity()
 
     def __validate(self):
         valid_types = ('Create', 'Update', 'Delete', 'Move', 'Add', 'Remove', 'Refresh')
         if self.activity['type'] not in valid_types:
             raise ValueError(f"Activity type is not valid. Got {self.activity['type']}.")
 
-    def parse_activity(self):
+    def __get_endtime_if_exists(self):
+        if 'endTime' in self.activity:
+            return self.activity['endTime']
+        else:
+            return False
+
+    def __parse_activity(self):
         """Looks at the object of an activity and returns appropriate data if a manifest is the subject."""
         if self.activity['object']['type'] == 'Manifest':
             return {
                 'type': self.activity['type'],
                 'manifest_url': self.activity['object']['id'],
+                'endtime': self.__get_endtime_if_exists()
             }
         else:
             return {'type': 'Ignore'}
 
 
 if __name__ == "__main__":
-    ActivitiesPage("https://iiif.bodleian.ox.ac.uk/iiif/activity/page-171")
+    x = ActivitiesPage("https://iiif.bodleian.ox.ac.uk/iiif/activity/page-171")
+    print(x.parsed_activities)
