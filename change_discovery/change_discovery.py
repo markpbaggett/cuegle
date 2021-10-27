@@ -120,6 +120,13 @@ class ActivitiesPage(ChangeDiscoveryRequest):
 
 
 class Activity:
+    """Represents an Activity for IIIF Change Discovery 1.0.
+
+    Attributes:
+        activity (dict): The corresponding activity with all metadata.
+        parsed_activity (dict): An activity with only the metadata we need for the aggregator.
+
+    """
     def __init__(self, activity_object):
         self.activity = activity_object
         self.parsed_activity = self.__parse_activity()
