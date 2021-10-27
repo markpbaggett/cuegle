@@ -2,13 +2,23 @@ import requests
 
 
 class ChangeDiscoveryRequest:
-    """A base class for doing various change discovery requests."""
+    """A base class for doing change discovery requests.
+
+    All ChangeDiscovery types that are tied to an HTML request should inherit from this class.
+
+    Attributes:
+        endpoint (str): The url to the web resource you are processing.
+        type (str): The corresponding ActivityStreams type class.  Used in validation.
+        details (dict): The contents of the corresponding URL request.
+
+    """
     def __init__(self, url, type_value):
         self.endpoint = url
         self.type = type_value
         self.details = requests.get(url).json()
 
     def validate_type(self):
+        """Validates that contents of the request matches its intended type or raises an error."""
         if "type" in self.details:
             if self.details["type"] != self.type:
                 raise ValueError(f"{self.endpoint} should be of type {self.type} but is {self.details['type']}.")
@@ -17,6 +27,7 @@ class ChangeDiscoveryRequest:
         return
 
     def validate_id(self):
+        """Validates that the contents of the request has an id and starts with HTTPS or raises an error."""
         if "id" in self.details:
             if not self.details["id"].startswith("https"):
                 raise ValueError(f"{self.type} id does not start with https.")
