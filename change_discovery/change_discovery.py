@@ -37,7 +37,14 @@ class ChangeDiscoveryRequest:
 
 
 class OrderedCollection(ChangeDiscoveryRequest):
-    """A class to represent an ActivityStreams Collection."""
+    """Represents an Ordered Collection request according to IIIF Change Discovery 1.0.
+
+    Attributes:
+        processed_items (list): A list of IIIF objects processed during this aggregation.
+        last_crawl (str): The timestamp of the last time the collection was aggregated.
+        only_delete (bool): State to help with refresh, remove, and delete instructions.
+
+    """
     def __init__(self, url, last_crawl=""):
         super().__init__(url, "OrderedCollection")
         self.__validate()
@@ -53,7 +60,7 @@ class OrderedCollection(ChangeDiscoveryRequest):
         return
 
     def get_all_pages_ever(self):
-        """This gets everything regardless of type or timestamp"""
+        """Temporary method.  Used to process all pages ever regardless of Activity status."""
         x = self.__crawl(self.details['last']['id'])
         while x is not False:
             x = self.__crawl(x)
@@ -71,7 +78,13 @@ class OrderedCollection(ChangeDiscoveryRequest):
 
 
 class ActivitiesPage(ChangeDiscoveryRequest):
-    """A Class to represent an ActivityStreams CollectionPage"""
+    """Represents an Ordered Collection Page according to IIIF Change Discovery 1.0.
+
+    Attributes:
+        is_last_page (bool): States whether this page is the last page in the collection.
+        activities (list): A list of Activities in reverse order.
+        parsed_activities (list): @todo what is this again?
+    """
     def __init__(self, url, last_crawl=""):
         super().__init__(url, "OrderedCollectionPage")
         self.__validate()
