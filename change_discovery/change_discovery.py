@@ -174,6 +174,6 @@ if __name__ == "__main__":
     data = {
         "data": x.processed_items
     }
-    with open("utc_activities.py", 'w') as sample:
+    with open("utc_activities.json", 'w') as sample:
         json.dump(data, sample, indent=4, sort_keys=True)
 
