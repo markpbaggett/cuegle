@@ -1,4 +1,6 @@
 import requests
+from time import sleep
+import json
 
 
 class ChangeDiscoveryRequest:
@@ -15,7 +17,7 @@ class ChangeDiscoveryRequest:
     def __init__(self, url, type_value):
         self.endpoint = url
         self.type = type_value
-        self.details = requests.get(url).json()
+        self.details = self.__get_details(url)
 
     def validate_type(self):
         """Validates that contents of the request matches its intended type or raises an error."""
@@ -33,6 +35,19 @@ class ChangeDiscoveryRequest:
                 raise ValueError(f"{self.type} id does not start with https.")
         else:
             raise KeyError(f"{self.type} missing id.")
+        return
+
+    def __get_details(self, url):
+        """Performs all get requests."""
+        r = requests.get(url)
+        self.__determine_rate_limiting(r.headers)
+        return r.json()
+
+    @staticmethod
+    def __determine_rate_limiting(headers):
+        if 'X-RateLimit-Remaining' in headers:
+            if headers['X-RateLimit-Remaining'] == '1' or headers['X-RateLimit-Remaining'] == '0':
+                sleep(60)
         return
 
 
@@ -64,7 +79,6 @@ class OrderedCollection(ChangeDiscoveryRequest):
         x = self.__crawl(self.details['last']['id'])
         while x is not False:
             x = self.__crawl(x)
-            print(x)
         return
 
     def __crawl(self, page):
@@ -156,7 +170,10 @@ class Activity:
 
 if __name__ == "__main__":
     x = OrderedCollection('https://researchworks.oclc.org/digital/activity-stream/site/16877')
-    activities = x.get_all_pages_ever()
+    x.get_all_pages_ever()
+    data = {
+        "data": x.processed_items
+    }
     with open("utc_activities.py", 'w') as sample:
-        sample.write(activities)
+        json.dump(data, sample, indent=4, sort_keys=True)
 
