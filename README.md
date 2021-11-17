@@ -5,6 +5,12 @@ Experiments with aggregrating content from Digital Library of Tennessee content 
 
 ## About
 
+The Cuegle is a three-eyed monster from Cantabrarian folklore that can see the past, present, and future.
+
+The name is apropos for the Digital Library of Tennessee thinking about past activities in DLTN repositories available 
+via a Change Discovery endpoint and how we might aggregate those to deliver the future of the Digital Library of
+Tennessee.
+
 **Note**: This is not intended to be used for production or really anything specific at all.
 
 Instead, this is help us imagine what an aggregation system might look like, what it would need to do to grab data from 
