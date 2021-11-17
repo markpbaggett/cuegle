@@ -93,6 +93,20 @@ class MongoWriter(MongoConnection):
             sleep(6)
             return "Sleeping"
 
+    def add_contents_from_specific_provider(self, provider):
+        missing_contents = self.collection.find_one({"provider": provider, "contents": {"$exists": False}})
+        r = requests.get(missing_contents['manifest_id'])
+        if r.status_code == 200:
+            details = self.__get_important_details(r.json())
+            return self.__update_contents(missing_contents['manifest_id'], details)
+        if r.status_code == 404:
+            details = {"empty": True}
+            return self.__update_contents(missing_contents['manifest_id'], details)
+        else:
+            print(f"{r.status_code} on {missing_contents['manifest_id']}")
+            sleep(6)
+            return "Sleeping"
+
 
 class DLTNQuery(MongoConnection):
     """Class specific for broad DLTN queries."""
@@ -120,16 +134,16 @@ if __name__ == "__main__":
     #     print(test.update_initial_manifest_record(item))
 
     ### Update Metadata and Sleep
-    # while True:
-    #     print(test.add_contents_to_manifest_record_if_not_exists())
+    while True:
+        print(test.add_contents_from_specific_provider('knox'))
 
     ### Get Everything with Contents
     # x = test.get_all_items_with_contents()
     # print(len(list(x)))
 
     ### Test DLTNQuery
-    test = DLTNQuery()
-    print(test.get_total_records_from_a_provider('utc'))
+    # test = DLTNQuery()
+    # print(test.get_total_records_from_a_provider('utc'))
 
     #print(test.add_contents_to_manifest_record_if_not_exists())
     #print(test.update_initial_manifest_record(data['data'][1]))
