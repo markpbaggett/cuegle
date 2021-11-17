@@ -94,6 +94,16 @@ class MongoWriter(MongoConnection):
             return "Sleeping"
 
 
+class DLTNQuery(MongoConnection):
+    """Class specific for broad DLTN queries."""
+    def __init__(self, mongo_uri="localhost", port="27017"):
+        super().__init__(mongo_uri, port)
+
+    def get_all_metadata_labels(self):
+        r = self.collection.distinct("contents.metadata.label")
+        return list(r)
+
+
 if __name__ == "__main__":
     utc_data = 'utc_activities.json'
     with open(utc_data, 'rb') as my_data:
@@ -106,13 +116,16 @@ if __name__ == "__main__":
     #     print(test.update_initial_manifest_record(item))
 
     ### Update Metadata and Sleep
-    while True:
-        print(test.add_contents_to_manifest_record_if_not_exists())
+    # while True:
+    #     print(test.add_contents_to_manifest_record_if_not_exists())
 
     ### Get Everything with Contents
     # x = test.get_all_items_with_contents()
     # print(len(list(x)))
 
+    ### Test DLTNQuery
+    test = DLTNQuery()
+    print(test.get_all_metadata_labels())
 
     #print(test.add_contents_to_manifest_record_if_not_exists())
     #print(test.update_initial_manifest_record(data['data'][1]))
