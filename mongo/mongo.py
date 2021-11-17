@@ -75,7 +75,7 @@ class MongoWriter(MongoConnection):
             "label": details['label'],
             'metadata': details['metadata']
         }
-        if 'within' in details.items():
+        if 'within' in details.keys():
             value['within'] = details['within']
         return value
 
@@ -103,13 +103,17 @@ class DLTNQuery(MongoConnection):
         r = self.collection.distinct("contents.metadata.label")
         return list(r)
 
+    def get_total_records_from_a_provider(self, provider):
+        r = self.collection.find({"provider": provider})
+        return len(list(r))
+
 
 if __name__ == "__main__":
-    utc_data = 'utc_activities.json'
+    utc_data = 'knox.json'
     with open(utc_data, 'rb') as my_data:
         data = json.load(my_data)
 
-    test = MongoWriter('utc', data)
+    test = MongoWriter('knox', data)
 
     ### Initialize records
     # for item in data['data']:
@@ -125,7 +129,7 @@ if __name__ == "__main__":
 
     ### Test DLTNQuery
     test = DLTNQuery()
-    print(test.get_all_metadata_labels())
+    print(test.get_total_records_from_a_provider('utc'))
 
     #print(test.add_contents_to_manifest_record_if_not_exists())
     #print(test.update_initial_manifest_record(data['data'][1]))
