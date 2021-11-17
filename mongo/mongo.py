@@ -4,11 +4,24 @@ import requests
 from time import sleep
 
 
-class MongoWriter:
-    def __init__(self, provider, data, mongo_uri="localhost", port="27017"):
+class MongoConnection:
+    def __init__(self, mongo_uri="localhost", port="27017"):
         self.client = MongoClient(f'mongodb://{mongo_uri}:{port}/')
         self.db = self.client.dltn
         self.collection = self.db.provider
+
+    def find_manifest(self, id):
+        r = self.collection.find_one({"manifest_id": id})
+        return r
+
+    def get_all_items_with_contents(self):
+        r = self.collection.find({"contents": { "$exists": True} })
+        return r
+
+
+class MongoWriter(MongoConnection):
+    def __init__(self, provider, data, mongo_uri="localhost", port="27017"):
+        super().__init__(mongo_uri, port)
         self.provider = provider
         self.data = data
 
@@ -79,14 +92,6 @@ class MongoWriter:
             print(f"{r.status_code} on {missing_contents['manifest_id']}")
             sleep(6)
             return "Sleeping"
-
-    def find_manifest(self, id):
-        r = self.collection.find_one({"manifest_id": id})
-        return r
-
-    def get_all_items_with_contents(self):
-        r = self.collection.find({"contents": { "$exists": True} })
-        return r
 
 
 if __name__ == "__main__":
