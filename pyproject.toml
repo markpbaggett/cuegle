@@ -8,6 +8,7 @@ authors = ["Mark Baggett <mbagget1@utk.edu>"]
 python = "^3.9"
 requests = "^2.26.0"
 pymongo = "^3.12.1"
+tqdm = "^4.62.3"
 
 [tool.poetry.dev-dependencies]
 
