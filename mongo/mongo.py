@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import json
 import requests
 from time import sleep
+from tqdm import tqdm
 
 
 class MongoConnection:
@@ -121,21 +122,70 @@ class DLTNQuery(MongoConnection):
         r = self.collection.find({"provider": provider})
         return len(list(r))
 
+    def add_contents_from_specific_provider(self, provider):
+        missing_contents = self.collection.find_one({"provider": provider, "contents": {"$exists": False}})
+        r = requests.get(missing_contents['manifest_id'])
+        if r.status_code == 200:
+            details = self.__get_important_details(r.json())
+            return self.__update_contents(missing_contents['manifest_id'], details)
+        if r.status_code == 403:
+            details = {"restricted": True}
+            return self.__update_contents(missing_contents['manifest_id'], details)
+        if r.status_code == 404:
+            details = {"empty": True}
+            return self.__update_contents(missing_contents['manifest_id'], details)
+        else:
+            print(f"{r.status_code} on {missing_contents['manifest_id']}")
+            sleep(6)
+            return "Sleeping"
+
+    def __get_important_details(self, details):
+        """Details we want:
+                    @context
+                    label
+                    metadata
+                    within
+
+        """
+        value = {
+            "@context": details["@context"],
+            "label": details['label'],
+            'metadata': details['metadata']
+        }
+        if 'within' in details.keys():
+            value['within'] = details['within']
+        return value
+
+    def __update_contents(self, manifest, data):
+        r = self.collection.update_one(
+            {
+                "manifest_id": manifest
+            },
+            {
+                "$set": {
+                    "contents": data
+                }
+            },
+            upsert=True
+        )
+        return r
+
 
 if __name__ == "__main__":
-    utc_data = 'knox.json'
+    utc_data = 'memphis_pub_activities.json'
     with open(utc_data, 'rb') as my_data:
         data = json.load(my_data)
 
-    test = MongoWriter('knox', data)
+    # test = MongoWriter('memphis_pub', data)
 
     ### Initialize records
-    # for item in data['data']:
-    #     print(test.update_initial_manifest_record(item))
+    # for item in tqdm(data['data']):
+    #     test.update_initial_manifest_record(item)
 
     ### Update Metadata and Sleep
+    test = DLTNQuery()
     while True:
-        print(test.add_contents_from_specific_provider('knox'))
+        print(test.add_contents_from_specific_provider('mtsu'))
 
     ### Get Everything with Contents
     # x = test.get_all_items_with_contents()
